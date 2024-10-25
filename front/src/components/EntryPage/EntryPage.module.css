@@ -1,0 +1,9 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centers content vertically */
+    align-items: center; /* Centers content horizontally */
+    height: 100vh; /* Full viewport height */
+    text-align: center; /* Aligns text in center */
+    padding: 20px;
+}

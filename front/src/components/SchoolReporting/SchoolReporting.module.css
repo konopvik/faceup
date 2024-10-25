@@ -1,0 +1,128 @@
+/* SchoolReporting.module.css */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    background-color: #f9fafb; /* Light background color for a subtle contrast */
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* Soft shadow for a card-like effect */
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #111827; /* Darker gray for the title */
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 20px;
+    color: #6b7280; /* Light gray for the subtitle */
+}
+
+.description {
+    font-size: 1rem;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    color: #4b5563; /* Medium gray for body text */
+}
+
+strong {
+    color: #111827; /* Bold and darker color for emphasis */
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Space between buttons */
+    margin-top: 30px;
+}
+
+.createReportButton {
+    background-color: #3b82f6;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.createReportButton:hover {
+    background-color: #2563eb;
+}
+
+.backButton {
+    background-color: white;
+    color: #3b82f6;
+    padding: 12px 24px;
+    border: 2px solid #3b82f6;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.backButton:hover {
+    background-color: #e0f2fe;
+}
+
+.showReportsButton {
+    background-color: #10b981;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.showReportsButton:hover {
+    background-color: #059669;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    .description {
+        font-size: 0.9rem;
+    }
+
+    .buttons {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .createReportButton,
+    .backButton,
+    .showReportsButton {
+        width: 100%;
+        justify-content: center;
+    }
+}

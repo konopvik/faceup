@@ -1,0 +1,81 @@
+/* SchoolReports.module.css */
+
+.container {
+    padding: 20px;
+}
+
+.title {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.reportList {
+    list-style: none;
+    padding: 0;
+}
+
+.reportItem {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #f9fafb;
+}
+
+.date {
+    font-size: 12px;
+    color: #6b7280;
+    display: block;
+    margin-top: 10px;
+}
+
+.editButton, .deleteButton {
+    margin-right: 10px;
+    padding: 5px 10px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.editButton {
+    background-color: #60a5fa;
+    color: white;
+}
+
+.deleteButton {
+    background-color: #ef4444;
+    color: white;
+}
+
+.editForm {
+    margin-bottom: 20px;
+}
+
+.input {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+}
+
+.textarea {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    height: 80px;
+}
+
+.saveButton {
+    padding: 8px 16px;
+    background-color: #10b981;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
