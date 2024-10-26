@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import styles from './CreatingReport.module.css';
 
 const CreatingReport: React.FC = () => {
-    const [category, setCategory] = useState('');
-    const [whoNeedsHelp, setWhoNeedsHelp] = useState('');
-    const [classInput, setClassInput] = useState('');
     const [senderName, setSenderName] = useState('');
     const [senderAge, setSenderAge] = useState('');
     const [file, setFile] = useState<File | null>(null);
@@ -18,14 +16,33 @@ const CreatingReport: React.FC = () => {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const isSuccess = true;
+        if (!schoolName) {
+            alert('School name is missing.');
+            return;
+        }
 
-        if (isSuccess) {
+        const formData = new FormData();
+        formData.append('name', senderName);
+        formData.append('age', senderAge);
+        if (file) {
+            formData.append('file', file);
+        }
+
+        try {
+            const response = await axios.post(
+                `http://localhost:3000/api/schools/${encodeURIComponent(schoolName)}/reports`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }
+            );
             navigate(`/report-success/${encodeURIComponent(schoolName)}`);
-        } else {
+        } catch (error) {
             navigate('/report-failure');
         }
     };
@@ -35,7 +52,6 @@ const CreatingReport: React.FC = () => {
             <h1 className={styles.title}>New report</h1>
 
             <form onSubmit={handleSubmit} className={styles.form}>
-                {/* Sender Name Field */}
                 <div className={styles.formGroup}>
                     <label htmlFor="senderName" className={styles.label}>
                         Name <span className={styles.required}>*</span>
@@ -51,7 +67,6 @@ const CreatingReport: React.FC = () => {
                     />
                 </div>
 
-                {/* Sender Age Field */}
                 <div className={styles.formGroup}>
                     <label htmlFor="senderAge" className={styles.label}>
                         Age <span className={styles.required}>*</span>
@@ -67,10 +82,9 @@ const CreatingReport: React.FC = () => {
                     />
                 </div>
 
-                {/* File Upload */}
                 <div className={styles.formGroup}>
                     <label htmlFor="fileUpload" className={styles.label}>
-                        Nahrát soubor
+                        Add file
                     </label>
                     <input
                         type="file"
@@ -79,11 +93,6 @@ const CreatingReport: React.FC = () => {
                         onChange={handleFileChange}
                     />
                 </div>
-
-                {/* Other fields (Category, Who Needs Help, Class) */}
-                {/* ...rest of your form fields... */}
-
-                {/* Submit Button */}
                 <button type="submit" className={styles.submitButton}>
                     Send
                 </button>

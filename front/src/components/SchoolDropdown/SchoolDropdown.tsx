@@ -1,24 +1,33 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom';
 import styles from './SchoolDropdown.module.css';
 
 const SchoolDropdown: React.FC = () => {
+    const [schools, setSchools] = useState<string[]>([])
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedSchool, setSelectedSchool] = useState<string | null>(null);
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const navigate = useNavigate(); // Initialize useNavigate hook
 
-    const schools = [
-        'Testing school',
-        'Another School',
-        'School for Innovation',
-        'Global School of Learning',
-        'The Future Academy',
-        'Elite International School',
-        'Open Mind School',
-        'Creative Learning Center'
-    ];
+
+    useEffect(() => {
+        const fetchSchools = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/api/schools');
+                const schoolNames = response.data.map((school: { name: string }) => school.name);
+                setSchools(schoolNames);
+                setLoading(false);
+            } catch (err) {
+                setError(err.message);
+                setLoading(false);
+            }
+        }
+        fetchSchools();
+    }, []);
 
     const handleSelectSchool = (school: string) => {
         setSelectedSchool(school);
@@ -31,7 +40,7 @@ const SchoolDropdown: React.FC = () => {
         setSearchTerm(''); // Reset search term
     };
 
-    // Function to detect clicks outside of the dropdown
+
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -54,6 +63,9 @@ const SchoolDropdown: React.FC = () => {
             alert('Please select a school before continuing');
         }
     };
+
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error}</div>;
 
     return (
         <div className={styles.dropdownContainer} ref={dropdownRef}>

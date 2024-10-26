@@ -7,11 +7,14 @@
 .title {
     font-size: 24px;
     margin-bottom: 20px;
+    font-weight: bold;
+    color: #111827;
 }
 
 .reportList {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 .reportItem {
@@ -20,6 +23,12 @@
     padding: 15px;
     margin-bottom: 15px;
     background-color: #f9fafb;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.reportItem:hover {
+    background-color: #f3f4f6;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .date {
@@ -29,13 +38,14 @@
     margin-top: 10px;
 }
 
-.editButton, .deleteButton {
+.editButton, .deleteButton, .downloadButton {
     margin-right: 10px;
-    padding: 5px 10px;
+    padding: 6px 12px;
     font-size: 14px;
     border: none;
     cursor: pointer;
     border-radius: 4px;
+    transition: background-color 0.3s;
 }
 
 .editButton {
@@ -43,13 +53,34 @@
     color: white;
 }
 
+.editButton:hover {
+    background-color: #3b82f6;
+}
+
 .deleteButton {
     background-color: #ef4444;
     color: white;
 }
 
+.deleteButton:hover {
+    background-color: #dc2626;
+}
+
+.downloadButton {
+    background-color: #6366f1;
+    color: white;
+}
+
+.downloadButton:hover {
+    background-color: #4f46e5;
+}
+
 .editForm {
     margin-bottom: 20px;
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .input {
@@ -59,6 +90,12 @@
     margin-bottom: 10px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
+    transition: border-color 0.3s;
+}
+
+.input:focus {
+    border-color: #60a5fa;
+    outline: none;
 }
 
 .textarea {
@@ -69,6 +106,12 @@
     border: 1px solid #d1d5db;
     border-radius: 8px;
     height: 80px;
+    transition: border-color 0.3s;
+}
+
+.textarea:focus {
+    border-color: #60a5fa;
+    outline: none;
 }
 
 .saveButton {
@@ -78,4 +121,15 @@
     border: none;
     border-radius: 8px;
     cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.saveButton:hover {
+    background-color: #059669;
+}
+
+.noReports {
+    color: #6b7280;
+    font-size: 16px;
+    margin-top: 20px;
 }

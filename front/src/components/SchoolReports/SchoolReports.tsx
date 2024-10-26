@@ -1,33 +1,32 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import styles from './SchoolReports.module.css';
 
 type Report = {
     id: number;
-    title: string;
-    description: string;
-    date: string;
-    school: string;
-    senderName: string;
-    senderAge: number;
+    name: string;
+    age: number;
+    file?: string; // Placeholder for file data or URL if you display it
 };
 
 const SchoolReports: React.FC = () => {
     const { schoolName } = useParams<{ schoolName: string }>();
     const [reports, setReports] = useState<Report[]>([]);
     const [editReport, setEditReport] = useState<Report | null>(null);
-    const [newTitle, setNewTitle] = useState('');
-    const [newDescription, setNewDescription] = useState('');
+    const [newName, setNewName] = useState('');
+    const [newAge, setNewAge] = useState('');
+    const [newFile, setNewFile] = useState<File | null>(null);
 
-    // Simulated fetching of reports from backend
+    // Fetch reports from the backend
     const fetchReports = async () => {
         try {
-            // Fetch reports from your backend endpoint
-            const response = await fetch(`/api/reports?school=${encodeURIComponent(schoolName)}`);
-            const data = await response.json();
-            setReports(data);
+            const response = await axios.get(
+                `http://localhost:3000/api/schools/${encodeURIComponent(schoolName)}/reports`
+            );
+            setReports(response.data);
         } catch (error) {
-            console.error("Error fetching reports:", error);
+            console.error('Error fetching reports:', error);
         }
     };
 
@@ -38,35 +37,92 @@ const SchoolReports: React.FC = () => {
     // Delete report
     const handleDelete = async (id: number) => {
         try {
-            await fetch(`/api/reports/${id}`, { method: 'DELETE' });
-            setReports(reports.filter(report => report.id !== id));
+            await axios.delete(`http://localhost:3000/api/reports/${id}`);
+            setReports(reports.filter((report) => report.id !== id));
         } catch (error) {
-            console.error("Error deleting report:", error);
+            console.error('Error deleting report:', error);
         }
     };
 
     // Edit report (open form)
     const handleEdit = (report: Report) => {
         setEditReport(report);
-        setNewTitle(report.title);
-        setNewDescription(report.description);
+        setNewName(report.name);
+        setNewAge(report.age.toString());
     };
 
     // Save changes to the report
     const handleSave = async () => {
         if (editReport) {
             try {
-                const updatedReport = { ...editReport, title: newTitle, description: newDescription };
-                await fetch(`/api/reports/${editReport.id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updatedReport),
-                });
-                setReports(reports.map(report => (report.id === editReport.id ? updatedReport : report)));
+                const formData = new FormData();
+                formData.append('name', newName);
+                formData.append('age', newAge);
+                if (newFile) {
+                    formData.append('file', newFile); // Attach the new file if one was selected
+                }
+
+                await axios.put(
+                    `http://localhost:3000/api/reports/${editReport.id}`,
+                    formData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    }
+                );
+
+                // Update the reports list
+                setReports(
+                    reports.map((report) =>
+                        report.id === editReport.id
+                            ? { ...report, name: newName, age: parseInt(newAge, 10) }
+                            : report
+                    )
+                );
                 setEditReport(null);
             } catch (error) {
-                console.error("Error updating report:", error);
+                console.error('Error updating report:', error);
             }
+        }
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            setNewFile(e.target.files[0]);
+        }
+    };
+
+    // Download the file associated with a report
+    const handleDownload = async (id: number) => {
+        try {
+            const response = await axios.get(
+                `http://localhost:3000/api/reports/${id}/download`,
+                {
+                    responseType: 'blob', // Handle binary data
+                }
+            );
+
+            // Extract the filename from the Content-Disposition header
+            const contentDisposition = response.headers['content-disposition'];
+            let fileName = 'downloaded_file';
+            if (contentDisposition) {
+                const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+                if (fileNameMatch?.[1]) {
+                    fileName = fileNameMatch[1];
+                }
+            }
+
+            // Create a link element to download the file
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: response.data.type }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', fileName); // Use the extracted filename
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error('Error downloading file:', error);
         }
     };
 
@@ -79,18 +135,26 @@ const SchoolReports: React.FC = () => {
                     <h3>Edit Report</h3>
                     <input
                         type="text"
-                        value={newTitle}
-                        onChange={(e) => setNewTitle(e.target.value)}
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
                         className={styles.input}
-                        placeholder="Edit title"
+                        placeholder="Edit name"
                     />
-                    <textarea
-                        value={newDescription}
-                        onChange={(e) => setNewDescription(e.target.value)}
-                        className={styles.textarea}
-                        placeholder="Edit description"
+                    <input
+                        type="number"
+                        value={newAge}
+                        onChange={(e) => setNewAge(e.target.value)}
+                        className={styles.input}
+                        placeholder="Edit age"
                     />
-                    <button onClick={handleSave} className={styles.saveButton}>Save</button>
+                    <input
+                        type="file"
+                        onChange={handleFileChange}
+                        className={styles.input}
+                    />
+                    <button onClick={handleSave} className={styles.saveButton}>
+                        Save
+                    </button>
                 </div>
             )}
 
@@ -98,17 +162,35 @@ const SchoolReports: React.FC = () => {
                 <ul className={styles.reportList}>
                     {reports.map((report) => (
                         <li key={report.id} className={styles.reportItem}>
-                            <h3>{report.title}</h3>
-                            <p>{report.description}</p>
-                            <p><strong>Sender:</strong> {report.senderName}, Age: {report.senderAge}</p>
-                            <span className={styles.date}>Date: {report.date}</span>
-                            <button onClick={() => handleEdit(report)} className={styles.editButton}>Edit</button>
-                            <button onClick={() => handleDelete(report.id)} className={styles.deleteButton}>Delete</button>
+                            <h3>{report.name}</h3>
+                            <p>
+                                <strong>Age:</strong> {report.age}
+                            </p>
+                            <button
+                                onClick={() => handleDownload(report.id)}
+                                className={styles.downloadButton}
+                            >
+                                Download File
+                            </button>
+                            <button
+                                onClick={() => handleEdit(report)}
+                                className={styles.editButton}
+                            >
+                                Edit
+                            </button>
+                            <button
+                                onClick={() => handleDelete(report.id)}
+                                className={styles.deleteButton}
+                            >
+                                Delete
+                            </button>
                         </li>
                     ))}
                 </ul>
             ) : (
-                <p className={styles.noReports}>No reports found for {decodeURIComponent(schoolName)}.</p>
+                <p className={styles.noReports}>
+                    No reports found for {decodeURIComponent(schoolName)}.
+                </p>
             )}
         </div>
     );
