@@ -1,12 +1,22 @@
-/* CreatingReport.module.css */
-
 .container {
-    max-width: 600px;
-    margin: 0 auto;
+    max-width: 800px; /* Maximum width of the container */
+    margin: 0 auto; /* Center the container horizontally */
     padding: 40px;
     text-align: center;
     font-family: Arial, sans-serif;
+    background-color: #f9fafb;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+
+    /* Adjust for vertical centering */
+    height: 50vh; /* Set height to 50% of the viewport */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically within the container */
+    align-items: center; /* Center content horizontally */
+
 }
+
 
 .title {
     font-size: 2rem;
@@ -19,6 +29,8 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+    max-width: 600px;
+    width: 100%;
 }
 
 .formGroup {
@@ -95,6 +107,23 @@
     background-color: #2563eb;
 }
 
+.backButton {
+    background-color: #3b82f6;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+.backButton:hover {
+    background-color: #2563eb;
+}
+
 /* Responsive Styles */
 @media (max-width: 600px) {
     .container {
@@ -109,7 +138,8 @@
         margin-bottom: 20px;
     }
 
-    .submitButton {
+    .submitButton,
+    .backButton {
         width: 100%;
     }
 }

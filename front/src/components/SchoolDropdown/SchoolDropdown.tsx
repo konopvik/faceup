@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
 import styles from './SchoolDropdown.module.css';
+import Loader from "../Loader/Loader.tsx";
 
 const SchoolDropdown: React.FC = () => {
     const [schools, setSchools] = useState<string[]>([])
@@ -11,6 +12,7 @@ const SchoolDropdown: React.FC = () => {
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [warning, setWarning] = useState<string | null>(null)
     const navigate = useNavigate(); // Initialize useNavigate hook
 
 
@@ -60,12 +62,13 @@ const SchoolDropdown: React.FC = () => {
             const encodedSchool = encodeURIComponent(selectedSchool); // Encode the school name for URL safety
             navigate(`/reporting/${encodedSchool}`);
         } else {
-            alert('Please select a school before continuing');
+            setWarning("You must select school!")
         }
     };
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <Loader/>;
     if (error) return <div>Error: {error}</div>;
+
 
     return (
         <div className={styles.dropdownContainer} ref={dropdownRef}>
@@ -109,10 +112,10 @@ const SchoolDropdown: React.FC = () => {
             <button
                 className={styles.continueButton}
                 onClick={handleContinue}
-                disabled={!selectedSchool} // Disable the button if no school is selected
             >
                 Continue
             </button>
+            {warning && <span className={styles.warning}>{warning}</span>}
         </div>
     );
 };

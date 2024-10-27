@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import styles from './SchoolReports.module.css';
-
-type Report = {
-    id: number;
-    name: string;
-    age: number;
-    file?: string; // Placeholder for file data or URL if you display it
-};
+import Modal from '../Modal/Modal';
+import Loader from '../Loader/Loader';
 
 const SchoolReports: React.FC = () => {
     const { schoolName } = useParams<{ schoolName: string }>();
+    const navigate = useNavigate();
     const [reports, setReports] = useState<Report[]>([]);
     const [editReport, setEditReport] = useState<Report | null>(null);
     const [newName, setNewName] = useState('');
     const [newAge, setNewAge] = useState('');
     const [newFile, setNewFile] = useState<File | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
 
-    // Fetch reports from the backend
+    if (!schoolName) {
+        return <p className={styles.loading}>Loading school data...</p>;
+    }
+
     const fetchReports = async () => {
         try {
             const response = await axios.get(
@@ -27,6 +27,8 @@ const SchoolReports: React.FC = () => {
             setReports(response.data);
         } catch (error) {
             console.error('Error fetching reports:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -34,7 +36,6 @@ const SchoolReports: React.FC = () => {
         fetchReports();
     }, [schoolName]);
 
-    // Delete report
     const handleDelete = async (id: number) => {
         try {
             await axios.delete(`http://localhost:3000/api/reports/${id}`);
@@ -44,14 +45,13 @@ const SchoolReports: React.FC = () => {
         }
     };
 
-    // Edit report (open form)
     const handleEdit = (report: Report) => {
         setEditReport(report);
         setNewName(report.name);
         setNewAge(report.age.toString());
+        setNewFile(null);
     };
 
-    // Save changes to the report
     const handleSave = async () => {
         if (editReport) {
             try {
@@ -59,7 +59,7 @@ const SchoolReports: React.FC = () => {
                 formData.append('name', newName);
                 formData.append('age', newAge);
                 if (newFile) {
-                    formData.append('file', newFile); // Attach the new file if one was selected
+                    formData.append('file', newFile);
                 }
 
                 await axios.put(
@@ -72,7 +72,6 @@ const SchoolReports: React.FC = () => {
                     }
                 );
 
-                // Update the reports list
                 setReports(
                     reports.map((report) =>
                         report.id === editReport.id
@@ -81,6 +80,8 @@ const SchoolReports: React.FC = () => {
                     )
                 );
                 setEditReport(null);
+                setNewName('');
+                setNewAge('');
             } catch (error) {
                 console.error('Error updating report:', error);
             }
@@ -93,17 +94,15 @@ const SchoolReports: React.FC = () => {
         }
     };
 
-    // Download the file associated with a report
     const handleDownload = async (id: number) => {
         try {
             const response = await axios.get(
                 `http://localhost:3000/api/reports/${id}/download`,
                 {
-                    responseType: 'blob', // Handle binary data
+                    responseType: 'blob',
                 }
             );
 
-            // Extract the filename from the Content-Disposition header
             const contentDisposition = response.headers['content-disposition'];
             let fileName = 'downloaded_file';
             if (contentDisposition) {
@@ -113,11 +112,10 @@ const SchoolReports: React.FC = () => {
                 }
             }
 
-            // Create a link element to download the file
             const url = window.URL.createObjectURL(new Blob([response.data], { type: response.data.type }));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', fileName); // Use the extracted filename
+            link.setAttribute('download', fileName);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -126,39 +124,29 @@ const SchoolReports: React.FC = () => {
         }
     };
 
+    const handleBack = () => {
+        navigate(`/reporting/${encodeURIComponent(schoolName)}`);
+    };
+
+    const handleCloseModal = () => {
+        setEditReport(null);
+    };
+
     return (
         <div className={styles.container}>
             <h1 className={styles.title}>Reports for {decodeURIComponent(schoolName)}</h1>
 
-            {editReport && (
-                <div className={styles.editForm}>
-                    <h3>Edit Report</h3>
-                    <input
-                        type="text"
-                        value={newName}
-                        onChange={(e) => setNewName(e.target.value)}
-                        className={styles.input}
-                        placeholder="Edit name"
-                    />
-                    <input
-                        type="number"
-                        value={newAge}
-                        onChange={(e) => setNewAge(e.target.value)}
-                        className={styles.input}
-                        placeholder="Edit age"
-                    />
-                    <input
-                        type="file"
-                        onChange={handleFileChange}
-                        className={styles.input}
-                    />
-                    <button onClick={handleSave} className={styles.saveButton}>
-                        Save
-                    </button>
-                </div>
-            )}
+            <button
+                type="button"
+                className={styles.backButton}
+                onClick={handleBack}
+            >
+                Back
+            </button>
 
-            {reports.length > 0 ? (
+            {loading ? (
+                <Loader/>
+            ) : reports.length > 0 ? (
                 <ul className={styles.reportList}>
                     {reports.map((report) => (
                         <li key={report.id} className={styles.reportItem}>
@@ -192,6 +180,32 @@ const SchoolReports: React.FC = () => {
                     No reports found for {decodeURIComponent(schoolName)}.
                 </p>
             )}
+
+            <Modal isOpen={!!editReport} onClose={handleCloseModal}>
+                <h3>Edit Report</h3>
+                <input
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    className={styles.input}
+                    placeholder="Edit name"
+                />
+                <input
+                    type="number"
+                    value={newAge}
+                    onChange={(e) => setNewAge(e.target.value)}
+                    className={styles.input}
+                    placeholder="Edit age"
+                />
+                <input
+                    type="file"
+                    onChange={handleFileChange}
+                    className={styles.input}
+                />
+                <button onClick={handleSave} className={styles.saveButton}>
+                    Save
+                </button>
+            </Modal>
         </div>
     );
 };

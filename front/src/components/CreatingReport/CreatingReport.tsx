@@ -32,7 +32,7 @@ const CreatingReport: React.FC = () => {
         }
 
         try {
-            const response = await axios.post(
+            await axios.post(
                 `http://localhost:3000/api/schools/${encodeURIComponent(schoolName)}/reports`,
                 formData,
                 {
@@ -44,6 +44,12 @@ const CreatingReport: React.FC = () => {
             navigate(`/report-success/${encodeURIComponent(schoolName)}`);
         } catch (error) {
             navigate('/report-failure');
+        }
+    };
+
+    const handleBack = () => {
+        if (schoolName) {
+            navigate(`/reporting/${encodeURIComponent(schoolName)}`);
         }
     };
 
@@ -93,8 +99,16 @@ const CreatingReport: React.FC = () => {
                         onChange={handleFileChange}
                     />
                 </div>
+
                 <button type="submit" className={styles.submitButton}>
                     Send
+                </button>
+                <button
+                    type="button"
+                    className={styles.backButton}
+                    onClick={handleBack}
+                >
+                    Back
                 </button>
             </form>
         </div>
