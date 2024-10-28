@@ -18,4 +18,6 @@
 - **State Management**: useState, useEffect.
 - **Modal Management**: Custom modal component for displaying alerts and messages.
 
+Also, instead of regular forms, I could use something like React Hook Form, and instead of the usual loading, I could implement a skeleton.
+
 ## Example of the application's photo: [Link to photos directory](https://github.com/konopvik/faceup/tree/main/photos)
