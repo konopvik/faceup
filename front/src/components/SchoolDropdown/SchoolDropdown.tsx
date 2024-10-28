@@ -19,7 +19,7 @@ const SchoolDropdown: React.FC = () => {
     useEffect(() => {
         const fetchSchools = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/api/schools');
+                const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/schools`);
                 const schoolNames = response.data.map((school: { name: string }) => school.name);
                 setSchools(schoolNames);
                 setLoading(false);

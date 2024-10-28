@@ -127,7 +127,9 @@
 /* Responsive Styles */
 @media (max-width: 600px) {
     .container {
+        margin-top: 20px;
         padding: 20px;
+        min-height: 60vh;
     }
 
     .title {

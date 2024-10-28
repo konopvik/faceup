@@ -14,6 +14,7 @@ const SchoolReports: React.FC = () => {
     const [newAge, setNewAge] = useState('');
     const [newFile, setNewFile] = useState<File | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [modalMessage, setModalMessage] = useState<string | null>(null);
 
     if (!schoolName) {
         return <p className={styles.loading}>Loading school data...</p>;
@@ -22,7 +23,7 @@ const SchoolReports: React.FC = () => {
     const fetchReports = async () => {
         try {
             const response = await axios.get(
-                `http://localhost:3000/api/schools/${encodeURIComponent(schoolName)}/reports`
+                `${import.meta.env.VITE_BASE_URL}/schools/${encodeURIComponent(schoolName)}/reports`
             );
             setReports(response.data);
         } catch (error) {
@@ -38,7 +39,7 @@ const SchoolReports: React.FC = () => {
 
     const handleDelete = async (id: number) => {
         try {
-            await axios.delete(`http://localhost:3000/api/reports/${id}`);
+            await axios.delete(`${import.meta.env.VITE_BASE_URL}/reports/${id}`);
             setReports(reports.filter((report) => report.id !== id));
         } catch (error) {
             console.error('Error deleting report:', error);
@@ -54,16 +55,19 @@ const SchoolReports: React.FC = () => {
 
     const handleSave = async () => {
         if (editReport) {
+            if (!newFile) {
+                setModalMessage('You need to upload a file before saving.');
+                return;
+            }
+
             try {
                 const formData = new FormData();
                 formData.append('name', newName);
                 formData.append('age', newAge);
-                if (newFile) {
-                    formData.append('file', newFile);
-                }
+                formData.append('file', newFile);
 
                 await axios.put(
-                    `http://localhost:3000/api/reports/${editReport.id}`,
+                    `${import.meta.env.VITE_BASE_URL}/reports/${editReport.id}`,
                     formData,
                     {
                         headers: {
@@ -83,6 +87,7 @@ const SchoolReports: React.FC = () => {
                 setNewName('');
                 setNewAge('');
             } catch (error) {
+                setModalMessage('Error updating report. Please try again.');
                 console.error('Error updating report:', error);
             }
         }
@@ -97,7 +102,7 @@ const SchoolReports: React.FC = () => {
     const handleDownload = async (id: number) => {
         try {
             const response = await axios.get(
-                `http://localhost:3000/api/reports/${id}/download`,
+                `${import.meta.env.VITE_BASE_URL}/reports/${id}/download`,
                 {
                     responseType: 'blob',
                 }
@@ -120,6 +125,7 @@ const SchoolReports: React.FC = () => {
             link.click();
             document.body.removeChild(link);
         } catch (error) {
+            setModalMessage('There is no file for downloading');
             console.error('Error downloading file:', error);
         }
     };
@@ -129,6 +135,7 @@ const SchoolReports: React.FC = () => {
     };
 
     const handleCloseModal = () => {
+        setModalMessage(null);
         setEditReport(null);
     };
 
@@ -145,7 +152,7 @@ const SchoolReports: React.FC = () => {
             </button>
 
             {loading ? (
-                <Loader/>
+                <Loader />
             ) : reports.length > 0 ? (
                 <ul className={styles.reportList}>
                     {reports.map((report) => (
@@ -181,30 +188,36 @@ const SchoolReports: React.FC = () => {
                 </p>
             )}
 
-            <Modal isOpen={!!editReport} onClose={handleCloseModal}>
-                <h3>Edit Report</h3>
-                <input
-                    type="text"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    className={styles.input}
-                    placeholder="Edit name"
-                />
-                <input
-                    type="number"
-                    value={newAge}
-                    onChange={(e) => setNewAge(e.target.value)}
-                    className={styles.input}
-                    placeholder="Edit age"
-                />
-                <input
-                    type="file"
-                    onChange={handleFileChange}
-                    className={styles.input}
-                />
-                <button onClick={handleSave} className={styles.saveButton}>
-                    Save
-                </button>
+            <Modal isOpen={!!editReport || !!modalMessage} onClose={handleCloseModal}>
+                {modalMessage ? (
+                    <p>{modalMessage}</p>
+                ) : (
+                    <>
+                        <h3>Edit Report</h3>
+                        <input
+                            type="text"
+                            value={newName}
+                            onChange={(e) => setNewName(e.target.value)}
+                            className={styles.input}
+                            placeholder="Edit name"
+                        />
+                        <input
+                            type="number"
+                            value={newAge}
+                            onChange={(e) => setNewAge(e.target.value)}
+                            className={styles.input}
+                            placeholder="Edit age"
+                        />
+                        <input
+                            type="file"
+                            onChange={handleFileChange}
+                            className={styles.input}
+                        />
+                        <button onClick={handleSave} className={styles.saveButton}>
+                            Save
+                        </button>
+                    </>
+                )}
             </Modal>
         </div>
     );

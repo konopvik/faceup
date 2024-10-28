@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import styles from './CreatingReport.module.css';
+import Modal from '../Modal/Modal';
 
 const CreatingReport: React.FC = () => {
     const [senderName, setSenderName] = useState('');
     const [senderAge, setSenderAge] = useState('');
     const [file, setFile] = useState<File | null>(null);
+    const [modalMessage, setModalMessage] = useState<string | null>(null);
     const navigate = useNavigate();
     const { schoolName } = useParams<{ schoolName: string }>();
 
@@ -16,11 +18,23 @@ const CreatingReport: React.FC = () => {
         }
     };
 
+    const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (parseInt(value, 10) >= 0 || value === '') {
+            setSenderAge(value);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!schoolName) {
-            alert('School name is missing.');
+            setModalMessage('School name is missing.');
+            return;
+        }
+
+        if (parseInt(senderAge, 10) < 0) {
+            setModalMessage('Age cannot be less than 0.');
             return;
         }
 
@@ -33,7 +47,7 @@ const CreatingReport: React.FC = () => {
 
         try {
             await axios.post(
-                `http://localhost:3000/api/schools/${encodeURIComponent(schoolName)}/reports`,
+                `${import.meta.env.VITE_BASE_URL}/schools/${encodeURIComponent(schoolName)}/reports`,
                 formData,
                 {
                     headers: {
@@ -43,7 +57,7 @@ const CreatingReport: React.FC = () => {
             );
             navigate(`/report-success/${encodeURIComponent(schoolName)}`);
         } catch (error) {
-            navigate('/report-failure');
+            setModalMessage('An error occurred while submitting the report. Please try again.');
         }
     };
 
@@ -51,6 +65,10 @@ const CreatingReport: React.FC = () => {
         if (schoolName) {
             navigate(`/reporting/${encodeURIComponent(schoolName)}`);
         }
+    };
+
+    const handleCloseModal = () => {
+        setModalMessage(null);
     };
 
     return (
@@ -82,7 +100,7 @@ const CreatingReport: React.FC = () => {
                         id="senderAge"
                         className={styles.input}
                         value={senderAge}
-                        onChange={(e) => setSenderAge(e.target.value)}
+                        onChange={handleAgeChange}
                         placeholder="Enter sender's age"
                         required
                     />
@@ -111,6 +129,10 @@ const CreatingReport: React.FC = () => {
                     Back
                 </button>
             </form>
+
+            <Modal isOpen={modalMessage !== null} onClose={handleCloseModal}>
+                <p>{modalMessage}</p>
+            </Modal>
         </div>
     );
 };
