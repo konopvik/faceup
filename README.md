@@ -13,7 +13,7 @@
 ## Technologies
 - **Frontend**: React, TypeScript, CSS Modules, React Router.
 - **Backend**: Node.js, Express, Prisma ORM, PostgreSQL.
-- **Styling**: CSS modules.
+- **Styling**: CSS Modules.
 - **HTTP Client**: Axios for API requests.
 - **State Management**: useState, useEffect.
 - **Modal Management**: Custom modal component for displaying alerts and messages.
